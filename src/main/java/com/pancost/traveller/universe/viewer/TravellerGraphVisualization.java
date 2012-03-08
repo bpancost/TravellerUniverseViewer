@@ -5,7 +5,6 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import java.awt.Dimension;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;

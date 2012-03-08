@@ -1,10 +1,10 @@
 package com.pancost.traveller.universe.viewer;
 
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import com.pancost.traveller.universe.builder.TravellerConstants.ShiftTypes;
+import com.pancost.traveller.universe.builder.TravellerConstants.UtilityTypes;
+import com.pancost.traveller.universe.graph.PlanetLabeller;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.RadialTreeLayout;
-import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
@@ -12,12 +12,8 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.layout.LayoutTransition;
-import edu.uci.ics.jung.visualization.picking.RadiusPickSupport;
 import edu.uci.ics.jung.visualization.picking.ShapePickSupport;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
-import edu.uci.ics.jung.visualization.util.Animator;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -27,9 +23,6 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
-import com.pancost.traveller.universe.builder.TravellerConstants.UtilityTypes;
-import com.pancost.traveller.universe.builder.TravellerConstants.ShiftTypes;
-import com.pancost.traveller.universe.graph.PlanetLabeller;
 
 /**
  *

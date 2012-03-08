@@ -1,5 +1,6 @@
 package com.pancost.traveller.universe.viewer;
 
+import com.pancost.traveller.universe.builder.TravellerConstants;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import java.util.ArrayList;
@@ -9,7 +10,6 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.kernel.EmbeddedGraphDatabase;
-import com.pancost.traveller.universe.builder.TravellerConstants;
 
 /**
  *
