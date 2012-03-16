@@ -31,7 +31,7 @@ public class TravellerUniverseViewer extends javax.swing.JFrame implements Trave
         DefaultListModel dlm = new DefaultListModel();
         for(Relationship planetRelationship : planets.getRelationships(UtilityTypes.PLANET)){
             Node planet = planetRelationship.getOtherNode(planets);
-            dlm.addElement(planet.getProperty(DESIGNATION));
+            dlm.addElement(planet.getProperty(PlanetProperties.DESIGNATION.getProperty()));
             planetList.add(planet);
             visGraph.addVertex(planet);
             for(Relationship shiftRelationship : planet.getRelationships(ShiftTypes.Shift)){
@@ -160,7 +160,7 @@ public class TravellerUniverseViewer extends javax.swing.JFrame implements Trave
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLoadButton, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE))
+                    .addComponent(jLoadButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -701,7 +701,7 @@ public class TravellerUniverseViewer extends javax.swing.JFrame implements Trave
         );
         graphViewportLayout.setVerticalGroup(
             graphViewportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 133, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -712,7 +712,7 @@ public class TravellerUniverseViewer extends javax.swing.JFrame implements Trave
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -763,51 +763,51 @@ public class TravellerUniverseViewer extends javax.swing.JFrame implements Trave
         Node planet = planetList.get(jPlanetList.getSelectedIndex());
 
         Node sizeNode = planet.getSingleRelationship(PlanetRelationshipTypes.SIZE, Direction.BOTH).getOtherNode(planet);
-        jWorldSizeTextField.setText(sizeNode.getProperty(WORLD_SIZE).toString());
-        jSurfaceGravityTextField.setText(sizeNode.getProperty(SURFACE_GRAVITY).toString());
+        jWorldSizeTextField.setText(sizeNode.getProperty(PlanetProperties.WORLD_SIZE.getProperty()).toString());
+        jSurfaceGravityTextField.setText(sizeNode.getProperty(PlanetProperties.SURFACE_GRAVITY.getProperty()).toString());
 
         Node atmosphereNode = planet.getSingleRelationship(PlanetRelationshipTypes.ATMOSPHERE, Direction.BOTH).getOtherNode(planet);
-        jAtmosphereTextField.setText(atmosphereNode.getProperty(ATMOSPHERE).toString());
-        jPressureTextField.setText(atmosphereNode.getProperty(PRESSURE).toString());
-        jSurvivalGearRequiredTextField.setText(atmosphereNode.getProperty(SURVIVAL_GEAR_REQUIRED).toString());
+        jAtmosphereTextField.setText(atmosphereNode.getProperty(PlanetProperties.ATMOSPHERE.getProperty()).toString());
+        jPressureTextField.setText(atmosphereNode.getProperty(PlanetProperties.PRESSURE.getProperty()).toString());
+        jSurvivalGearRequiredTextField.setText(atmosphereNode.getProperty(PlanetProperties.SURVIVAL_GEAR_REQUIRED.getProperty()).toString());
 
         Node temperatureNode = planet.getSingleRelationship(PlanetRelationshipTypes.TEMPERATURE, Direction.BOTH).getOtherNode(planet);
-        jAverageTemperatureTextField.setText(temperatureNode.getProperty(AVERAGE_TEMPERATURE).toString());
-        jTemperatureTypeTextField.setText(temperatureNode.getProperty(TEMPERATURE_TYPE).toString());
-        jTemperatureDescriptionTextArea.setText(temperatureNode.getProperty(TEMPERATURE_DESCRIPTION).toString());
+        jAverageTemperatureTextField.setText(temperatureNode.getProperty(PlanetProperties.AVERAGE_TEMPERATURE.getProperty()).toString());
+        jTemperatureTypeTextField.setText(temperatureNode.getProperty(PlanetProperties.TEMPERATURE_TYPE.getProperty()).toString());
+        jTemperatureDescriptionTextArea.setText(temperatureNode.getProperty(PlanetProperties.TEMPERATURE_DESCRIPTION.getProperty()).toString());
 
         Node hydrographicsNode = planet.getSingleRelationship(PlanetRelationshipTypes.HYDROGRAPHICS, Direction.BOTH).getOtherNode(planet);
-        jHydrographicPercentageTextField.setText(hydrographicsNode.getProperty(HYDROGRAPHIC_PERCENTAGE).toString());
-        jHydrographicDescriptionTextField.setText(hydrographicsNode.getProperty(HYDROGRAPHIC_DESCRIPTION).toString());
+        jHydrographicPercentageTextField.setText(hydrographicsNode.getProperty(PlanetProperties.HYDROGRAPHIC_PERCENTAGE.getProperty()).toString());
+        jHydrographicDescriptionTextField.setText(hydrographicsNode.getProperty(PlanetProperties.HYDROGRAPHIC_DESCRIPTION.getProperty()).toString());
 
         Node populationNode = planet.getSingleRelationship(PlanetRelationshipTypes.POPULATION, Direction.BOTH).getOtherNode(planet);
-        jPopulationRangeTextField.setText(populationNode.getProperty(POPULATION_RANGE).toString());
-        jPopulationDescriptionTextField.setText(populationNode.getProperty(POPULATION_DESCRIPTION).toString());
+        jPopulationRangeTextField.setText(populationNode.getProperty(PlanetProperties.POPULATION_RANGE.getProperty()).toString());
+        jPopulationDescriptionTextField.setText(populationNode.getProperty(PlanetProperties.POPULATION_DESCRIPTION.getProperty()).toString());
 
         Node governmentNode = planet.getSingleRelationship(PlanetRelationshipTypes.GOVERNMENT, Direction.BOTH).getOtherNode(planet);
-        jGovernmentTypeTextField.setText(governmentNode.getProperty(GOVERNMENT_TYPE).toString());
-        jGovernmentDescriptionTextArea.setText(governmentNode.getProperty(GOVERNMENT_DESCRIPTION).toString());
-        jGovernmentExamplesTextField.setText(governmentNode.getProperty(GOVERNMENT_EXAMPLES).toString());
-        jGovernmentCommonContrabandTextField.setText(governmentNode.getProperty(GOVERNMENT_COMMON_CONTRABAND).toString());
+        jGovernmentTypeTextField.setText(governmentNode.getProperty(PlanetProperties.GOVERNMENT_TYPE.getProperty()).toString());
+        jGovernmentDescriptionTextArea.setText(governmentNode.getProperty(PlanetProperties.GOVERNMENT_DESCRIPTION.getProperty()).toString());
+        jGovernmentExamplesTextField.setText(governmentNode.getProperty(PlanetProperties.GOVERNMENT_EXAMPLES.getProperty()).toString());
+        jGovernmentCommonContrabandTextField.setText(governmentNode.getProperty(PlanetProperties.GOVERNMENT_COMMON_CONTRABAND.getProperty()).toString());
 
         Node lawNode = planet.getSingleRelationship(PlanetRelationshipTypes.LAW, Direction.BOTH).getOtherNode(planet);
-        jLawWeaponsTextField.setText(lawNode.getProperty(LAW_WEAPONS).toString());
-        jLawDrugsTextField.setText(lawNode.getProperty(LAW_DRUGS).toString());
-        jLawInformationTextField.setText(lawNode.getProperty(LAW_INFORMATION).toString());
-        jLawTechnologyTextField.setText(lawNode.getProperty(LAW_TECHNOLOGY).toString());
-        jLawTravellersTextField.setText(lawNode.getProperty(LAW_TRAVELLERS).toString());
-        jLawPsionicsTextField.setText(lawNode.getProperty(LAW_PSIONICS).toString());
+        jLawWeaponsTextField.setText(lawNode.getProperty(PlanetProperties.LAW_WEAPONS.getProperty()).toString());
+        jLawDrugsTextField.setText(lawNode.getProperty(PlanetProperties.LAW_DRUGS.getProperty()).toString());
+        jLawInformationTextField.setText(lawNode.getProperty(PlanetProperties.LAW_INFORMATION.getProperty()).toString());
+        jLawTechnologyTextField.setText(lawNode.getProperty(PlanetProperties.LAW_TECHNOLOGY.getProperty()).toString());
+        jLawTravellersTextField.setText(lawNode.getProperty(PlanetProperties.LAW_TRAVELLERS.getProperty()).toString());
+        jLawPsionicsTextField.setText(lawNode.getProperty(PlanetProperties.LAW_PSIONICS.getProperty()).toString());
 
         Node starportNode = planet.getSingleRelationship(PlanetRelationshipTypes.STARPORT, Direction.BOTH).getOtherNode(planet);
-        jStarportQualityTextField.setText(starportNode.getProperty(STARPORT_QUALITY).toString());
-        jStarportBerthingCostTextField.setText(starportNode.getProperty(STARPORT_BERTHING_COST).toString());
-        jStarportFuelTextField.setText(starportNode.getProperty(STARPORT_FUEL).toString());
-        jStarportFacilitiesTextField.setText(starportNode.getProperty(STARPORT_FACILITIES).toString());
-        jStarportBasesTextArea.setText(starportNode.getProperty(STARPORT_BASES).toString());
+        jStarportQualityTextField.setText(starportNode.getProperty(PlanetProperties.STARPORT_QUALITY.getProperty()).toString());
+        jStarportBerthingCostTextField.setText(starportNode.getProperty(PlanetProperties.STARPORT_BERTHING_COST.getProperty()).toString());
+        jStarportFuelTextField.setText(starportNode.getProperty(PlanetProperties.STARPORT_FUEL.getProperty()).toString());
+        jStarportFacilitiesTextField.setText(starportNode.getProperty(PlanetProperties.STARPORT_FACILITIES.getProperty()).toString());
+        jStarportBasesTextArea.setText(starportNode.getProperty(PlanetProperties.STARPORT_BASES.getProperty()).toString());
 
         Node techLevelNode = planet.getSingleRelationship(PlanetRelationshipTypes.TECH_LEVEL, Direction.BOTH).getOtherNode(planet);
-        jTechLevelDesignationTextField.setText(techLevelNode.getProperty(TECH_LEVEL_DESIGNATION).toString());
-        jTechLevelDescriptionTextArea.setText(techLevelNode.getProperty(TECH_LEVEL_DESCRIPTION).toString());
+        jTechLevelDesignationTextField.setText(techLevelNode.getProperty(PlanetProperties.TECH_LEVEL_DESIGNATION.getProperty()).toString());
+        jTechLevelDescriptionTextArea.setText(techLevelNode.getProperty(PlanetProperties.TECH_LEVEL_DESCRIPTION.getProperty()).toString());
     }//GEN-LAST:event_jLoadButtonActionPerformed
 
     /**
