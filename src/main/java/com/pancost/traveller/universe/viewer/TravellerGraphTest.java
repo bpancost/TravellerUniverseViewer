@@ -3,6 +3,10 @@ package com.pancost.traveller.universe.viewer;
 import com.pancost.traveller.universe.builder.TravellerConstants.ShiftTypes;
 import com.pancost.traveller.universe.builder.TravellerConstants.UtilityTypes;
 import com.pancost.traveller.universe.graph.PlanetLabeller;
+import com.tinkerpop.blueprints.pgm.Edge;
+import com.tinkerpop.blueprints.pgm.TransactionalGraph;
+import com.tinkerpop.blueprints.pgm.Vertex;
+import com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jGraph;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -18,11 +22,6 @@ import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import javax.swing.JFrame;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.kernel.EmbeddedGraphDatabase;
 
 /**
  *
@@ -30,22 +29,21 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
  */
 public class TravellerGraphTest extends JFrame {
     
-    ArrayList<Node> planetList = new ArrayList<Node>();
-    GraphDatabaseService graphDB;
-    Graph<Node,Relationship> visGraph;
-    DefaultVisualizationModel<Node,Relationship> visModel;
-    VisualizationViewer<Node,Relationship> visServer;
-    Layout<Node,Relationship> layout;
+    ArrayList<Vertex> planetList = new ArrayList<>();
+    TransactionalGraph graphDB;
+    Graph<Vertex,Edge> visGraph;
+    DefaultVisualizationModel<Vertex,Edge> visModel;
+    VisualizationViewer<Vertex,Edge> visServer;
+    Layout<Vertex,Edge> layout;
 
     public TravellerGraphTest() {
-        graphDB = new EmbeddedGraphDatabase("C:/traveller/graphdb");
-        visGraph = new SparseMultigraph<Node,Relationship>();
+        graphDB = new Neo4jGraph("C:/traveller/graphdb");
+        visGraph = new SparseMultigraph<>();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        Node root = graphDB.getReferenceNode();
-        Node planets = root.getSingleRelationship(UtilityTypes.ROOT, Direction.BOTH).getOtherNode(root);
-        for(Relationship planetRelationship : planets.getRelationships(UtilityTypes.PLANET)){
-            Node planet = planetRelationship.getOtherNode(planets);
+        Vertex planets = graphDB.getVertex(UtilityTypes.Planet.getProperty());
+        for(Edge planetEdge : planets.getOutEdges(UtilityTypes.Planet.getProperty())){
+            Vertex planet = planetEdge.getInVertex();
             planetList.add(planet);
             /*visGraph.addVertex(planet);
             for(Relationship shiftRelationship : planet.getRelationships(ShiftTypes.Shift)){
@@ -55,20 +53,20 @@ public class TravellerGraphTest extends JFrame {
                 }
             }*/
         }
-        Node planet1 = planetList.get(0);
+        Vertex planet1 = planetList.get(0);
         visGraph.addVertex(planet1);
-        for(Relationship shiftRelationship : planet1.getRelationships(ShiftTypes.Shift)){
-            Node planet2 = shiftRelationship.getOtherNode(planet1);
-            visGraph.addEdge(shiftRelationship, planet1, planet2);
+        for(Edge shiftEdge : planet1.getOutEdges(ShiftTypes.Shift.getProperty())){
+            Vertex planet2 = shiftEdge.getInVertex();
+            visGraph.addEdge(shiftEdge, planet1, planet2);
             visGraph.addVertex(planet2);
         }
         
         layout = new FRLayout(visGraph);
         layout.setSize(new Dimension(800,800));
         
-        visModel = new DefaultVisualizationModel<Node,Relationship>(layout);
+        visModel = new DefaultVisualizationModel<>(layout);
         
-        visServer = new VisualizationViewer<Node,Relationship>(visModel);
+        visServer = new VisualizationViewer<>(visModel);
         visServer.setPreferredSize(new Dimension(800,800));
         
         visServer.getRenderContext().setVertexLabelTransformer(new PlanetLabeller());
@@ -81,15 +79,16 @@ public class TravellerGraphTest extends JFrame {
         
         visServer.setPickSupport(new ShapePickSupport(visServer));
         
-        visServer.addGraphMouseListener(new GraphMouseListener<Node>(){
+        visServer.addGraphMouseListener(new GraphMouseListener<Vertex>(){
 
-            public void graphClicked(Node v, MouseEvent me) {
-                visGraph = new SparseMultigraph<Node, Relationship>();
+            @Override
+            public void graphClicked(Vertex v, MouseEvent me) {
+                visGraph = new SparseMultigraph<>();
                 visGraph.addVertex(v);
                 visGraph.addVertex(v);
-                for(Relationship shiftRelationship : v.getRelationships(ShiftTypes.Shift)){
-                    Node otherPlanet = shiftRelationship.getOtherNode(v);
-                    visGraph.addEdge(shiftRelationship, v, otherPlanet);
+                for(Edge shiftEdge : v.getOutEdges(ShiftTypes.Shift.getProperty())){
+                    Vertex otherPlanet = shiftEdge.getInVertex();
+                    visGraph.addEdge(shiftEdge, v, otherPlanet);
                     visGraph.addVertex(otherPlanet);
                 }
                 setLayout(new FRLayout(visGraph));
@@ -102,11 +101,13 @@ public class TravellerGraphTest extends JFrame {
                 visServer.repaint();*/
             }
 
-            public void graphPressed(Node v, MouseEvent me) {
+            @Override
+            public void graphPressed(Vertex v, MouseEvent me) {
                 //throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            public void graphReleased(Node v, MouseEvent me) {
+            @Override
+            public void graphReleased(Vertex v, MouseEvent me) {
                 //throw new UnsupportedOperationException("Not supported yet.");
             }
         
@@ -116,7 +117,7 @@ public class TravellerGraphTest extends JFrame {
         add(visServer);
     }
     
-    public void setLayout(Layout<Node,Relationship> layout){
+    public void setLayout(Layout<Vertex,Edge> layout){
         this.layout = layout;
     }
     

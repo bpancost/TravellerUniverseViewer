@@ -1,15 +1,17 @@
 package com.pancost.traveller.universe.viewer;
 
 import com.pancost.traveller.universe.builder.TravellerConstants;
+import com.pancost.traveller.universe.frames.*;
+import com.tinkerpop.blueprints.pgm.Edge;
+import com.tinkerpop.blueprints.pgm.Index;
+import com.tinkerpop.blueprints.pgm.TransactionalGraph;
+import com.tinkerpop.blueprints.pgm.Vertex;
+import com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jGraph;
+import com.tinkerpop.frames.FramesManager;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.kernel.EmbeddedGraphDatabase;
 
 /**
  *
@@ -17,30 +19,36 @@ import org.neo4j.kernel.EmbeddedGraphDatabase;
  */
 public class TravellerUniverseViewer extends javax.swing.JFrame implements TravellerConstants {
 
-    ArrayList<Node> planetList = new ArrayList<Node>();
-    GraphDatabaseService graphDB;
-    Graph<Node,Relationship> visGraph;
+    TransactionalGraph graphDB;
+    Graph<Vertex,Edge> visGraph;
+    FramesManager framesManager;
+    ArrayList<Planet> planetList;
 
     public TravellerUniverseViewer() {
-        graphDB = new EmbeddedGraphDatabase("C:/traveller/graphdb");
-        visGraph = new SparseMultigraph<Node, Relationship>();
+        graphDB = new Neo4jGraph("C:/traveller/graphdb");
+        framesManager = new FramesManager(graphDB);
+        visGraph = new SparseMultigraph<>();
         initComponents();
-
-        Node root = graphDB.getReferenceNode();
-        Node planets = root.getSingleRelationship(UtilityTypes.ROOT, Direction.BOTH).getOtherNode(root);
+        
+        Iterable<PlanetList> planetListIterable = framesManager.frameVertices(Index.VERTICES, "indexed", "YES", PlanetList.class);
+        planetList = new ArrayList<>(planetListIterable.iterator().next().getPlanetList());
+        
         DefaultListModel dlm = new DefaultListModel();
-        for(Relationship planetRelationship : planets.getRelationships(UtilityTypes.PLANET)){
-            Node planet = planetRelationship.getOtherNode(planets);
+        for(Planet planet : planetList){
+            dlm.addElement(planet.getDesignation());
+        }
+        /*for(Edge planetEdge : planets.getOutEdges(UtilityTypes.Planet.getProperty())){
+            Vertex planet = planetEdge.getInVertex();
             dlm.addElement(planet.getProperty(PlanetProperties.DESIGNATION.getProperty()));
             planetList.add(planet);
             visGraph.addVertex(planet);
-            for(Relationship shiftRelationship : planet.getRelationships(ShiftTypes.Shift)){
-                Node otherPlanet = shiftRelationship.getOtherNode(planet);
+            for(Edge shiftEdge : planet.getOutEdges(ShiftTypes.Shift.getProperty())){
+                Vertex otherPlanet = shiftEdge.getInVertex();
                 if(!planetList.contains(otherPlanet)){
-                    visGraph.addEdge(shiftRelationship, planet, otherPlanet);
+                    visGraph.addEdge(shiftEdge, planet, otherPlanet);
                 }
             }
-        }
+        }*/
         jPlanetList.setModel(dlm);
     }
 
@@ -760,54 +768,54 @@ public class TravellerUniverseViewer extends javax.swing.JFrame implements Trave
     }// </editor-fold>//GEN-END:initComponents
 
     private void jLoadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jLoadButtonActionPerformed
-        Node planet = planetList.get(jPlanetList.getSelectedIndex());
+        Planet planet = planetList.get(jPlanetList.getSelectedIndex());
 
-        Node sizeNode = planet.getSingleRelationship(PlanetRelationshipTypes.SIZE, Direction.BOTH).getOtherNode(planet);
-        jWorldSizeTextField.setText(sizeNode.getProperty(PlanetProperties.WORLD_SIZE.getProperty()).toString());
-        jSurfaceGravityTextField.setText(sizeNode.getProperty(PlanetProperties.SURFACE_GRAVITY.getProperty()).toString());
+        PlanetSize sizeNode = planet.getPlanetSize();
+        jWorldSizeTextField.setText(sizeNode.getWorldSize());
+        jSurfaceGravityTextField.setText(sizeNode.getSurfaceGravity());
 
-        Node atmosphereNode = planet.getSingleRelationship(PlanetRelationshipTypes.ATMOSPHERE, Direction.BOTH).getOtherNode(planet);
-        jAtmosphereTextField.setText(atmosphereNode.getProperty(PlanetProperties.ATMOSPHERE.getProperty()).toString());
-        jPressureTextField.setText(atmosphereNode.getProperty(PlanetProperties.PRESSURE.getProperty()).toString());
-        jSurvivalGearRequiredTextField.setText(atmosphereNode.getProperty(PlanetProperties.SURVIVAL_GEAR_REQUIRED.getProperty()).toString());
+        PlanetAtmosphere atmosphereNode = planet.getPlanetAtmosphere();
+        jAtmosphereTextField.setText(atmosphereNode.getAtmosphere());
+        jPressureTextField.setText(atmosphereNode.getPressure());
+        jSurvivalGearRequiredTextField.setText(atmosphereNode.getSurvivalGearRequired());
 
-        Node temperatureNode = planet.getSingleRelationship(PlanetRelationshipTypes.TEMPERATURE, Direction.BOTH).getOtherNode(planet);
-        jAverageTemperatureTextField.setText(temperatureNode.getProperty(PlanetProperties.AVERAGE_TEMPERATURE.getProperty()).toString());
-        jTemperatureTypeTextField.setText(temperatureNode.getProperty(PlanetProperties.TEMPERATURE_TYPE.getProperty()).toString());
-        jTemperatureDescriptionTextArea.setText(temperatureNode.getProperty(PlanetProperties.TEMPERATURE_DESCRIPTION.getProperty()).toString());
+        PlanetTemperature temperatureNode = planet.getPlanetTemperature();
+        jAverageTemperatureTextField.setText(temperatureNode.getAverageTemperature());
+        jTemperatureTypeTextField.setText(temperatureNode.getTemperatureType());
+        jTemperatureDescriptionTextArea.setText(temperatureNode.getDescription());
 
-        Node hydrographicsNode = planet.getSingleRelationship(PlanetRelationshipTypes.HYDROGRAPHICS, Direction.BOTH).getOtherNode(planet);
-        jHydrographicPercentageTextField.setText(hydrographicsNode.getProperty(PlanetProperties.HYDROGRAPHIC_PERCENTAGE.getProperty()).toString());
-        jHydrographicDescriptionTextField.setText(hydrographicsNode.getProperty(PlanetProperties.HYDROGRAPHIC_DESCRIPTION.getProperty()).toString());
+        PlanetHydrographics hydrographicsNode = planet.getPlanetHydrographics();
+        jHydrographicPercentageTextField.setText(hydrographicsNode.getPercentage());
+        jHydrographicDescriptionTextField.setText(hydrographicsNode.getDescription());
 
-        Node populationNode = planet.getSingleRelationship(PlanetRelationshipTypes.POPULATION, Direction.BOTH).getOtherNode(planet);
-        jPopulationRangeTextField.setText(populationNode.getProperty(PlanetProperties.POPULATION_RANGE.getProperty()).toString());
-        jPopulationDescriptionTextField.setText(populationNode.getProperty(PlanetProperties.POPULATION_DESCRIPTION.getProperty()).toString());
+        PlanetPopulation populationNode = planet.getPlanetPopulation();
+        jPopulationRangeTextField.setText(populationNode.getPopulationRange());
+        jPopulationDescriptionTextField.setText(populationNode.getDescription());
 
-        Node governmentNode = planet.getSingleRelationship(PlanetRelationshipTypes.GOVERNMENT, Direction.BOTH).getOtherNode(planet);
-        jGovernmentTypeTextField.setText(governmentNode.getProperty(PlanetProperties.GOVERNMENT_TYPE.getProperty()).toString());
-        jGovernmentDescriptionTextArea.setText(governmentNode.getProperty(PlanetProperties.GOVERNMENT_DESCRIPTION.getProperty()).toString());
-        jGovernmentExamplesTextField.setText(governmentNode.getProperty(PlanetProperties.GOVERNMENT_EXAMPLES.getProperty()).toString());
-        jGovernmentCommonContrabandTextField.setText(governmentNode.getProperty(PlanetProperties.GOVERNMENT_COMMON_CONTRABAND.getProperty()).toString());
+        PlanetGovernment governmentNode = planet.getPlanetGovernment();
+        jGovernmentTypeTextField.setText(governmentNode.getType());
+        jGovernmentDescriptionTextArea.setText(governmentNode.getDescription());
+        jGovernmentExamplesTextField.setText(governmentNode.getExamples());
+        jGovernmentCommonContrabandTextField.setText(governmentNode.getCommonContraband());
 
-        Node lawNode = planet.getSingleRelationship(PlanetRelationshipTypes.LAW, Direction.BOTH).getOtherNode(planet);
-        jLawWeaponsTextField.setText(lawNode.getProperty(PlanetProperties.LAW_WEAPONS.getProperty()).toString());
-        jLawDrugsTextField.setText(lawNode.getProperty(PlanetProperties.LAW_DRUGS.getProperty()).toString());
-        jLawInformationTextField.setText(lawNode.getProperty(PlanetProperties.LAW_INFORMATION.getProperty()).toString());
-        jLawTechnologyTextField.setText(lawNode.getProperty(PlanetProperties.LAW_TECHNOLOGY.getProperty()).toString());
-        jLawTravellersTextField.setText(lawNode.getProperty(PlanetProperties.LAW_TRAVELLERS.getProperty()).toString());
-        jLawPsionicsTextField.setText(lawNode.getProperty(PlanetProperties.LAW_PSIONICS.getProperty()).toString());
+        PlanetLaw lawNode = planet.getPlanetLaw();
+        jLawWeaponsTextField.setText(lawNode.getWeaponRestrictions());
+        jLawDrugsTextField.setText(lawNode.getDrugRestrictions());
+        jLawInformationTextField.setText(lawNode.getInformationRestrictions());
+        jLawTechnologyTextField.setText(lawNode.getTechnologyRestrictions());
+        jLawTravellersTextField.setText(lawNode.getTravellerRestrictions());
+        jLawPsionicsTextField.setText(lawNode.getPsionicRestrictions());
 
-        Node starportNode = planet.getSingleRelationship(PlanetRelationshipTypes.STARPORT, Direction.BOTH).getOtherNode(planet);
-        jStarportQualityTextField.setText(starportNode.getProperty(PlanetProperties.STARPORT_QUALITY.getProperty()).toString());
-        jStarportBerthingCostTextField.setText(starportNode.getProperty(PlanetProperties.STARPORT_BERTHING_COST.getProperty()).toString());
-        jStarportFuelTextField.setText(starportNode.getProperty(PlanetProperties.STARPORT_FUEL.getProperty()).toString());
-        jStarportFacilitiesTextField.setText(starportNode.getProperty(PlanetProperties.STARPORT_FACILITIES.getProperty()).toString());
-        jStarportBasesTextArea.setText(starportNode.getProperty(PlanetProperties.STARPORT_BASES.getProperty()).toString());
+        PlanetStarport starportNode = planet.getPlanetStarport();
+        jStarportQualityTextField.setText(starportNode.getQuality());
+        jStarportBerthingCostTextField.setText(starportNode.getBerthingCost());
+        jStarportFuelTextField.setText(starportNode.getFuel());
+        jStarportFacilitiesTextField.setText(starportNode.getFacilities());
+        jStarportBasesTextArea.setText(starportNode.getBases());
 
-        Node techLevelNode = planet.getSingleRelationship(PlanetRelationshipTypes.TECH_LEVEL, Direction.BOTH).getOtherNode(planet);
-        jTechLevelDesignationTextField.setText(techLevelNode.getProperty(PlanetProperties.TECH_LEVEL_DESIGNATION.getProperty()).toString());
-        jTechLevelDescriptionTextArea.setText(techLevelNode.getProperty(PlanetProperties.TECH_LEVEL_DESCRIPTION.getProperty()).toString());
+        PlanetTechLevel techLevelNode = planet.getPlanetTechLevel();
+        jTechLevelDesignationTextField.setText(techLevelNode.getDesignation());
+        jTechLevelDescriptionTextArea.setText(techLevelNode.getDescription());
     }//GEN-LAST:event_jLoadButtonActionPerformed
 
     /**
@@ -815,6 +823,7 @@ public class TravellerUniverseViewer extends javax.swing.JFrame implements Trave
     */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new TravellerUniverseViewer().setVisible(true);
             }
