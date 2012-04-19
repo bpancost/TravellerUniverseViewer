@@ -1,19 +1,25 @@
 package com.pancost.traveller.universe.graph;
 
+import com.tinkerpop.frames.FramesManager;
 import org.apache.commons.collections15.Transformer;
 
 /**
  *
  * @author Brandon Pancost
  */
-public class PlanetLabeller<Node> implements Transformer<org.neo4j.graphdb.Node, String>{
-
-    public PlanetLabeller(){
+public class PlanetLabeller<Planet> implements Transformer<com.tinkerpop.blueprints.pgm.Vertex, String>{
+    
+    FramesManager framesManager;
+    
+    public PlanetLabeller(FramesManager framesManager){
         super();
+        this.framesManager = framesManager;
     }
     
-    public String transform(org.neo4j.graphdb.Node planet) {
-        return (String)planet.getProperty("DESIGNATION");
+    @Override
+    public String transform(com.tinkerpop.blueprints.pgm.Vertex planetVertex) {
+        com.pancost.traveller.universe.frames.Planet planet = framesManager.frame(planetVertex, com.pancost.traveller.universe.frames.Planet.class);
+        return planet.getDesignation();
     }
     
 }
