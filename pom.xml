@@ -86,6 +86,11 @@
       <version>2.0.1</version>
     </dependency>
     <dependency>
+      <groupId>com.tinkerpop.blueprints</groupId>
+      <artifactId>blueprints-graph-jung</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
       <groupId>com.pancost</groupId>
       <artifactId>TravellerUniverseBuilder</artifactId>
       <version>1.0-SNAPSHOT</version>
