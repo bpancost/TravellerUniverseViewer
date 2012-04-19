@@ -1,12 +1,15 @@
 package com.pancost.traveller.universe.viewer;
 
-import com.pancost.traveller.universe.builder.TravellerConstants.ShiftTypes;
-import com.pancost.traveller.universe.builder.TravellerConstants.UtilityTypes;
+import com.pancost.traveller.universe.frames.Planet;
+import com.pancost.traveller.universe.frames.PlanetList;
+import com.pancost.traveller.universe.frames.Shift;
 import com.pancost.traveller.universe.graph.PlanetLabeller;
 import com.tinkerpop.blueprints.pgm.Edge;
+import com.tinkerpop.blueprints.pgm.Index;
 import com.tinkerpop.blueprints.pgm.TransactionalGraph;
 import com.tinkerpop.blueprints.pgm.Vertex;
 import com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jGraph;
+import com.tinkerpop.frames.FramesManager;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -21,6 +24,7 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import javax.swing.JFrame;
 
 /**
@@ -29,36 +33,32 @@ import javax.swing.JFrame;
  */
 public class TravellerGraphTest extends JFrame {
     
-    ArrayList<Vertex> planetList = new ArrayList<>();
+    ArrayList<Planet> planetList = new ArrayList<>();
     TransactionalGraph graphDB;
     Graph<Vertex,Edge> visGraph;
     DefaultVisualizationModel<Vertex,Edge> visModel;
     VisualizationViewer<Vertex,Edge> visServer;
     Layout<Vertex,Edge> layout;
+    FramesManager framesManager;
 
     public TravellerGraphTest() {
         graphDB = new Neo4jGraph("C:/traveller/graphdb");
+        framesManager = new FramesManager(graphDB);
         visGraph = new SparseMultigraph<>();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        Vertex planets = graphDB.getVertex(UtilityTypes.Planet.getProperty());
-        for(Edge planetEdge : planets.getOutEdges(UtilityTypes.Planet.getProperty())){
-            Vertex planet = planetEdge.getInVertex();
-            planetList.add(planet);
-            /*visGraph.addVertex(planet);
-            for(Relationship shiftRelationship : planet.getRelationships(ShiftTypes.Shift)){
-                Node otherPlanet = shiftRelationship.getOtherNode(planet);
-                if(!planetList.contains(otherPlanet)){
-                    visGraph.addEdge(shiftRelationship, planet, otherPlanet);
-                }
-            }*/
-        }
-        Vertex planet1 = planetList.get(0);
-        visGraph.addVertex(planet1);
-        for(Edge shiftEdge : planet1.getOutEdges(ShiftTypes.Shift.getProperty())){
-            Vertex planet2 = shiftEdge.getInVertex();
-            visGraph.addEdge(shiftEdge, planet1, planet2);
-            visGraph.addVertex(planet2);
+        Iterable<PlanetList> planetListIterable = framesManager.frameVertices(Index.VERTICES, "indexed", "YES", PlanetList.class);
+        planetList = new ArrayList<>(planetListIterable.iterator().next().getPlanetList());
+        
+        Planet planet = planetList.get(0);
+        Vertex planetVertex = planet.asVertex();
+        visGraph.addVertex(planetVertex);
+        
+        Collection<Shift> shifts = planet.getShifts();
+        for(Shift shift : shifts){
+            Planet otherPlanet = shift.getToPlanet();
+            visGraph.addVertex(otherPlanet.asVertex());
+            visGraph.addEdge(shift.asEdge(), planetVertex, otherPlanet.asVertex());
         }
         
         layout = new FRLayout(visGraph);
@@ -69,7 +69,7 @@ public class TravellerGraphTest extends JFrame {
         visServer = new VisualizationViewer<>(visModel);
         visServer.setPreferredSize(new Dimension(800,800));
         
-        visServer.getRenderContext().setVertexLabelTransformer(new PlanetLabeller());
+        visServer.getRenderContext().setVertexLabelTransformer(new PlanetLabeller(framesManager));
         visServer.getRenderer().getVertexLabelRenderer().setPosition(Position.N);
         
         DefaultModalGraphMouse gm = new DefaultModalGraphMouse();
@@ -85,12 +85,14 @@ public class TravellerGraphTest extends JFrame {
             public void graphClicked(Vertex v, MouseEvent me) {
                 visGraph = new SparseMultigraph<>();
                 visGraph.addVertex(v);
-                visGraph.addVertex(v);
-                for(Edge shiftEdge : v.getOutEdges(ShiftTypes.Shift.getProperty())){
-                    Vertex otherPlanet = shiftEdge.getInVertex();
-                    visGraph.addEdge(shiftEdge, v, otherPlanet);
-                    visGraph.addVertex(otherPlanet);
+                Planet planet = framesManager.frame(v, Planet.class);
+                Collection<Shift> shifts = planet.getShifts();
+                for(Shift shift : shifts){
+                    Planet otherPlanet = shift.getToPlanet();
+                    visGraph.addVertex(otherPlanet.asVertex());
+                    visGraph.addEdge(shift.asEdge(), v, otherPlanet.asVertex());
                 }
+                
                 setLayout(new FRLayout(visGraph));
                 visModel.setGraphLayout(layout);
                 /*Layout<Node,Relationship> newLayout = new FRLayout(visGraph);
@@ -133,6 +135,7 @@ public class TravellerGraphTest extends JFrame {
     */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new TravellerGraphTest().setVisible(true);
             }
