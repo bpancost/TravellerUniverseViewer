@@ -2,12 +2,11 @@ package com.pancost.traveller.universe.viewer;
 
 import com.pancost.traveller.universe.builder.TravellerConstants;
 import com.pancost.traveller.universe.frames.*;
-import com.tinkerpop.blueprints.pgm.Edge;
-import com.tinkerpop.blueprints.pgm.Index;
-import com.tinkerpop.blueprints.pgm.TransactionalGraph;
-import com.tinkerpop.blueprints.pgm.Vertex;
-import com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jGraph;
-import com.tinkerpop.frames.FramesManager;
+import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.TransactionalGraph;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
+import com.tinkerpop.frames.FramedGraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import java.util.ArrayList;
@@ -21,34 +20,25 @@ public class TravellerUniverseViewer extends javax.swing.JFrame implements Trave
 
     TransactionalGraph graphDB;
     Graph<Vertex,Edge> visGraph;
-    FramesManager framesManager;
-    ArrayList<Planet> planetList;
+    FramedGraph<TransactionalGraph> framedGraph;
+    ArrayList<Planet> planetList = new ArrayList<>();
 
     public TravellerUniverseViewer() {
         graphDB = new Neo4jGraph("C:/traveller/graphdb");
-        framesManager = new FramesManager(graphDB);
+        framedGraph = new FramedGraph<>(graphDB);
         visGraph = new SparseMultigraph<>();
         initComponents();
         
-        Iterable<PlanetList> planetListIterable = framesManager.frameVertices(Index.VERTICES, "indexed", "YES", PlanetList.class);
-        planetList = new ArrayList<>(planetListIterable.iterator().next().getPlanetList());
+        PlanetList planetListNode = framedGraph.getVertices("indexed", "YES", PlanetList.class).iterator().next();
+        for(Planet p : planetListNode.getPlanetList()){
+            planetList.add(p);
+        }
         
         DefaultListModel dlm = new DefaultListModel();
         for(Planet planet : planetList){
             dlm.addElement(planet.getDesignation());
         }
-        /*for(Edge planetEdge : planets.getOutEdges(UtilityTypes.Planet.getProperty())){
-            Vertex planet = planetEdge.getInVertex();
-            dlm.addElement(planet.getProperty(PlanetProperties.DESIGNATION.getProperty()));
-            planetList.add(planet);
-            visGraph.addVertex(planet);
-            for(Edge shiftEdge : planet.getOutEdges(ShiftTypes.Shift.getProperty())){
-                Vertex otherPlanet = shiftEdge.getInVertex();
-                if(!planetList.contains(otherPlanet)){
-                    visGraph.addEdge(shiftEdge, planet, otherPlanet);
-                }
-            }
-        }*/
+        
         jPlanetList.setModel(dlm);
     }
 

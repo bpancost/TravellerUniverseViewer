@@ -4,12 +4,12 @@ import com.pancost.traveller.universe.frames.Planet;
 import com.pancost.traveller.universe.frames.PlanetList;
 import com.pancost.traveller.universe.frames.Shift;
 import com.pancost.traveller.universe.graph.PlanetLabeller;
-import com.tinkerpop.blueprints.pgm.Edge;
-import com.tinkerpop.blueprints.pgm.Index;
-import com.tinkerpop.blueprints.pgm.TransactionalGraph;
-import com.tinkerpop.blueprints.pgm.Vertex;
-import com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jGraph;
-import com.tinkerpop.frames.FramesManager;
+import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Index;
+import com.tinkerpop.blueprints.TransactionalGraph;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
+import com.tinkerpop.frames.FramedGraph;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
@@ -43,15 +43,17 @@ public class TravellerGraphTest extends JFrame {
     private DefaultVisualizationModel<Vertex,Edge> visModel;
     private VisualizationViewer<Vertex,Edge> visServer;
     private Layout<Vertex,Edge> layout;
-    private FramesManager framesManager;
+    private FramedGraph<TransactionalGraph> framedGraph;
 
     public TravellerGraphTest() {
         graphDB = new Neo4jGraph("C:/traveller/graphdb");
-        framesManager = new FramesManager(graphDB);
+        framedGraph = new FramedGraph(graphDB);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        Iterable<PlanetList> planetListIterable = framesManager.frameVertices(Index.VERTICES, "indexed", "YES", PlanetList.class);
-        planetList = new ArrayList<>(planetListIterable.iterator().next().getPlanetList());
+        PlanetList planetListNode = framedGraph.getVertices("indexed", "YES", PlanetList.class).iterator().next();
+        for(Planet p : planetListNode.getPlanetList()){
+            planetList.add(p);
+        }
         
         Planet planet = planetList.get(0);
         
@@ -67,7 +69,7 @@ public class TravellerGraphTest extends JFrame {
         
         addPlanetShiftsToVisServer(planet);
         
-        visServer.getRenderContext().setVertexLabelTransformer(new PlanetLabeller(framesManager));
+        visServer.getRenderContext().setVertexLabelTransformer(new PlanetLabeller(framedGraph));
         visServer.getRenderer().getVertexLabelRenderer().setPosition(Position.N);
         
         DefaultModalGraphMouse gm = new DefaultModalGraphMouse();
@@ -81,7 +83,7 @@ public class TravellerGraphTest extends JFrame {
 
             @Override
             public void graphClicked(Vertex v, MouseEvent me) {
-                Planet planet = framesManager.frame(v, Planet.class);
+                Planet planet = framedGraph.frame(v, Planet.class);
                 addPlanetShiftsToVisServer(planet);
                 /*Layout<Node,Relationship> newLayout = new FRLayout(visGraph);
                 //StaticLayout<Node,Relationship> staticLayout = new StaticLayout<Node,Relationship>(visGraph, newLayout);
@@ -120,7 +122,7 @@ public class TravellerGraphTest extends JFrame {
         if(!visGraph.containsVertex(planet.asVertex())){
             visGraph.addVertex(planet.asVertex());
         }
-        Collection<Shift> shifts = planet.getShifts();
+        Iterable<Shift> shifts = planet.getShifts();
         for(Shift shift : shifts){
             Planet otherPlanet = shift.getToPlanet();
             if(!visGraph.containsVertex(otherPlanet.asVertex())){

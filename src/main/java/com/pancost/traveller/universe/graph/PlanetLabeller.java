@@ -1,24 +1,25 @@
 package com.pancost.traveller.universe.graph;
 
-import com.tinkerpop.frames.FramesManager;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.frames.FramedGraph;
 import org.apache.commons.collections15.Transformer;
 
 /**
  *
  * @author Brandon Pancost
  */
-public class PlanetLabeller<Planet> implements Transformer<com.tinkerpop.blueprints.pgm.Vertex, String>{
+public class PlanetLabeller<Planet> implements Transformer<Vertex, String>{
     
-    FramesManager framesManager;
+    FramedGraph framedGraph;
     
-    public PlanetLabeller(FramesManager framesManager){
+    public PlanetLabeller(FramedGraph framedGraph){
         super();
-        this.framesManager = framesManager;
+        this.framedGraph = framedGraph;
     }
     
     @Override
-    public String transform(com.tinkerpop.blueprints.pgm.Vertex planetVertex) {
-        com.pancost.traveller.universe.frames.Planet planet = framesManager.frame(planetVertex, com.pancost.traveller.universe.frames.Planet.class);
+    public String transform(Vertex planetVertex) {
+        com.pancost.traveller.universe.frames.Planet planet = (com.pancost.traveller.universe.frames.Planet) framedGraph.frame(planetVertex, com.pancost.traveller.universe.frames.Planet.class);
         return planet.getDesignation();
     }
     
