@@ -4,8 +4,9 @@ import com.pancost.traveller.universe.frames.Planet;
 import com.pancost.traveller.universe.frames.PlanetList;
 import com.pancost.traveller.universe.frames.Shift;
 import com.pancost.traveller.universe.graph.PlanetLabeller;
+import com.pancost.traveller.universe.graph.ShiftColoring;
+import com.pancost.traveller.universe.graph.ShiftLabeller;
 import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Index;
 import com.tinkerpop.blueprints.TransactionalGraph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
@@ -24,7 +25,6 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Collection;
 import javax.swing.JFrame;
 
 /**
@@ -33,7 +33,7 @@ import javax.swing.JFrame;
  */
 public class TravellerGraphTest extends JFrame {
     
-    private static final int MAX_SHIFT_DEPTH = 5;
+    private static final int MAX_SHIFT_DEPTH = 3;
     private static final int DISPLAY_WIDTH = 1680;
     private static final int DISPLAY_HEIGHT = 1000;
     
@@ -71,6 +71,9 @@ public class TravellerGraphTest extends JFrame {
         
         visServer.getRenderContext().setVertexLabelTransformer(new PlanetLabeller(framedGraph));
         visServer.getRenderer().getVertexLabelRenderer().setPosition(Position.N);
+        
+        visServer.getRenderContext().setEdgeLabelTransformer(new ShiftLabeller(framedGraph));
+        visServer.getRenderContext().setEdgeDrawPaintTransformer(new ShiftColoring(framedGraph));
         
         DefaultModalGraphMouse gm = new DefaultModalGraphMouse();
         //gm.setMode(ModalGraphMouse.Mode.TRANSFORMING);
