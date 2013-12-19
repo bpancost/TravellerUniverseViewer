@@ -37,16 +37,16 @@ public class TravellerGraphTest extends JFrame {
     private static final int DISPLAY_WIDTH = 1680;
     private static final int DISPLAY_HEIGHT = 1000;
     
-    private ArrayList<Planet> planetList = new ArrayList<>();
-    private TransactionalGraph graphDB;
+    private final ArrayList<Planet> planetList = new ArrayList<>();
+    private final TransactionalGraph graphDB;
     private Graph<Vertex,Edge> visGraph;
-    private DefaultVisualizationModel<Vertex,Edge> visModel;
-    private VisualizationViewer<Vertex,Edge> visServer;
+    private final DefaultVisualizationModel<Vertex,Edge> visModel;
+    private final VisualizationViewer<Vertex,Edge> visServer;
     private Layout<Vertex,Edge> layout;
     private FramedGraph<TransactionalGraph> framedGraph;
 
-    public TravellerGraphTest() {
-        graphDB = new Neo4jGraph("C:/traveller/graphdb");
+    public TravellerGraphTest(String dbPath) {
+        graphDB = new Neo4jGraph(dbPath);
         framedGraph = new FramedGraph(graphDB);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -153,10 +153,16 @@ public class TravellerGraphTest extends JFrame {
     * @param args the command line arguments
     */
     public static void main(String args[]) {
+        final String dbPath;
+        if(args.length == 0 || args[0].isEmpty()){
+            System.err.println("Must provide the database path as an argument.");
+            return;
+        }
+        dbPath = args[0];
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new TravellerGraphTest().setVisible(true);
+                new TravellerGraphTest(dbPath).setVisible(true);
             }
         });
     }

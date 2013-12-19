@@ -20,8 +20,8 @@ public class TravellerBlueprintsGraphTest extends JFrame {
     
     TransactionalGraph graphDB;
     
-    public TravellerBlueprintsGraphTest(){
-        graphDB = new Neo4jGraph("C:/traveller/graphdb");
+    public TravellerBlueprintsGraphTest(String dbPath){
+        graphDB = new Neo4jGraph(dbPath);
         GraphJung graph = new GraphJung(graphDB);
         Layout<Vertex, Edge> layout = new CircleLayout<>(graph);
         layout.setSize(new Dimension(800, 800));
@@ -59,10 +59,16 @@ public class TravellerBlueprintsGraphTest extends JFrame {
     }
     
     public static void main(String[] args){
+        final String dbPath;
+        if(args.length == 0 || args[0].isEmpty()){
+            System.err.println("Must provide the database path as an argument.");
+            return;
+        }
+        dbPath = args[0];
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new TravellerBlueprintsGraphTest().setVisible(true);
+                new TravellerBlueprintsGraphTest(dbPath).setVisible(true);
             }
         });
     }

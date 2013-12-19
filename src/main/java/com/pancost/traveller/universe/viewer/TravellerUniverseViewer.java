@@ -23,8 +23,8 @@ public class TravellerUniverseViewer extends javax.swing.JFrame implements Trave
     FramedGraph<TransactionalGraph> framedGraph;
     ArrayList<Planet> planetList = new ArrayList<>();
 
-    public TravellerUniverseViewer() {
-        graphDB = new Neo4jGraph("C:/traveller/graphdb");
+    public TravellerUniverseViewer(String dbPath) {
+        graphDB = new Neo4jGraph(dbPath);
         framedGraph = new FramedGraph<>(graphDB);
         visGraph = new SparseMultigraph<>();
         initComponents();
@@ -812,10 +812,16 @@ public class TravellerUniverseViewer extends javax.swing.JFrame implements Trave
     * @param args the command line arguments
     */
     public static void main(String args[]) {
+        final String dbPath;
+        if(args.length == 0 || args[0].isEmpty()){
+            System.err.println("Must provide the database path as an argument.");
+            return;
+        }
+        dbPath = args[0];
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new TravellerUniverseViewer().setVisible(true);
+                new TravellerUniverseViewer(dbPath).setVisible(true);
             }
         });
     }
